@@ -1,0 +1,24 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Ignore lock files (optional, if you only want to track package.json)
+package-lock.json
+yarn.lock
+
+# Optional: Build output directories (for Vite, Webpack, or other build tools)
+dist/
+build/
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Optional: Local IDE settings
+.vscode/
+
+# Ignore Vite cache (optional)
+.vite/
