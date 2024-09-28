@@ -1,87 +1,182 @@
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
-import { LogOutIcon } from "lucide-react";
-import React from "react";
+import { CircleUserRound, Loader2, LogOutIcon, Newspaper, User } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 function Profile() {
-
-    const {toast} = useToast();
+    const { toast } = useToast();
     const navigate = useNavigate();
+    const [userDetails, setUserDetails] = useState({});
 
-    const logoutUser = async () => {
+    const fetchUserDetails = async () => {
         try {
-            const response = await axios.post(
-                "http://localhost:8000/api/v1/user/logout",
-                null,
+            const response = await axios.get(
+                "http://localhost:8000/api/v1/user/fetch-user-details",
                 {
                     withCredentials: true,
                 }
             );
-            toast({
-                title: response.data.message,
-            });
-            navigate("/login");
+            setUserDetails(response.data.data.loggedInUser);
         } catch (error) {
-            console.error(
-                "Error",
-                error.response ? error.response.data : error.message
+            toast({
+                title:
+                    error.response.data.message || "Something went wrong",
+                description: "Please login ...",
+                variant: "destructive",
+                action: (
+                    <ToastAction altText="Login">
+                        <a href="/login">Login</a>
+                    </ToastAction>
+                ),
+            });
+        }
+    };
+
+    useEffect(() => {
+        fetchUserDetails();
+    }, []);
+
+    const [newSalary, setNewSalary] = useState("");
+    const [isUpdatingSalary, setIsUpdatingSalary] = useState(false);
+    const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false)
+
+    const updateUser = async () => {
+        try {
+            setIsUpdatingSalary(true);
+            console.log(newSalary);
+            const response = await axios.patch(
+                "http://localhost:8000/api/v1/user/update-user-details",
+                {
+                    salary: newSalary,
+                },
+                {
+                    withCredentials: true,
+                }
             );
+        } catch (error) {
+            toast({
+                title: error.response.data.message || "Something went wrong",
+                variant: "destructive",
+            });
+        } finally {
+            setNewSalary("");
+            setIsUpdatingSalary(false);
+            fetchUserDetails();
+            setIsUpdateDialogOpen(false)
         }
     };
     return (
         <>
-        <div>
-            <div className="navbar bg-base-400 h-32 w-full p-10">
-                <div className="navbar-start">
-                    <div className="dropdown">
-                        <div
-                            tabIndex={0}
-                            role="button"
-                            className="btn btn-ghost lg:hidden"
-                        ></div>
-                        <ul
-                            tabIndex={0}
-                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow text-lg"
-                        >
-                            <li>
-                                <a className="text-lg">Friends</a>
-                            </li>
-                            <li>
-                                <a>Parent</a>
-                            </li>
-                            <li>
-                                <a>Item 3</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <a className="btn btn-ghost text-4xl">My Profile</a>
-                </div>
-                <div className="navbar-center ">
-                    <a href="/dashboard">
-                        <Button variant="link" className="text-lg">Dashboard</Button>
-                    </a>
-                    <a href="/friends">
-                        <Button variant="link" className="text-lg">Friends</Button>
-                    </a>
-                    <a href="events">
-                        <Button variant="link" className="text-lg">Events</Button>
-                    </a>
-                    <a href="splits">
-                        <Button variant="link" className="text-lg">Splitwise</Button>
-                    </a>
-                </div>
-                <div className="navbar-end">
-                    <Button onClick={logoutUser} className=" text-base p-6 ">
-                        <LogOutIcon className="" size={20} />
-                        <p className="ml-3 mr-4 mt-1">Logout</p>
-                    </Button>
-                </div>
-            </div>
             <div>
+                <div className="navbar bg-base-400 h-32 w-full p-10">
+                    <div className="navbar-start">
+                        <a className="btn btn-ghost text-4xl">My Profile</a>
+                    </div>
+                    <div className="navbar-center ">
+                        <a href="/dashboard">
+                            <Button variant="link" className="text-lg">
+                                Dashboard
+                            </Button>
+                        </a>
+                        <a href="/friends">
+                            <Button variant="link" className="text-lg">
+                                Friends
+                            </Button>
+                        </a>
+                        <a href="events">
+                            <Button variant="link" className="text-lg">
+                                Events
+                            </Button>
+                        </a>
+                        <a href="splits">
+                            <Button variant="link" className="text-lg">
+                                Splitwise
+                            </Button>
+                        </a>
+                    </div>
+                    <div className="navbar-end flex items-center">
+                        <CircleUserRound size={25} strokeWidth={2} />
+                        <p className="ml-2 mr-20 font-bold">
+                            @{userDetails.username}
+                        </p>
+                    </div>
+                </div>
+                <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+                    <div className="">
+                        <div className="flex justify-start items-center mx-4">
+                            <div className="stat w-60 border-white border-1 rounded-2xl">
+                                <div className="stat-title text-slate-300">
+                                    Salary
+                                </div>
+                                <div className="stat-value font-mono">
+                                    ₹{userDetails.salary}
+                                </div>
+                                <DialogTrigger asChild>
+                                    <div className="stat-actions w-full">
+                                        <button className="btn btn-xs w-full ml-1 rounded-md border-green-400 hover:text-green-300 text-white">
+                                            Update
+                                        </button>
+                                    </div>
+                                </DialogTrigger>
+                            </div>
+                        </div>
+                    </div>
 
-            </div>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Edit Salary</DialogTitle>
+                            <DialogDescription>
+                                Got an appraisal or a coworker stabbed you, We
+                                got you covered. Update your salary
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="username"
+                                    className="text-right"
+                                >
+                                    Salary
+                                </Label>
+                                <Input
+                                    id="username"
+                                    placeholder="in Rupees.."
+                                    value={newSalary}
+                                    onChange={(e) =>
+                                        setNewSalary(e.target.value)
+                                    }
+                                    className="col-span-3 text-base"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            {isUpdatingSalary ? (
+                                <Button disabled>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </Button>
+                            ) : (
+                                <Button onClick={updateUser} type="submit">
+                                    Save changes
+                                </Button>
+                            )}
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
     );

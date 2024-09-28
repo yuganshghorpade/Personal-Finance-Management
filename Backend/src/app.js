@@ -18,11 +18,13 @@ import eventRouter from './routes/event.route.js'
 import friendRouter from './routes/friend.route.js'
 import categoryRouter from './routes/category.route.js'
 import splitRouter from './routes/split.route.js'
+import expenseRouter from './routes/expense.route.js'
 
 app.use("/api/v1/user",userRouter)
 app.use("/api/v1/event",eventRouter)
 app.use("/api/v1/friend",friendRouter)
 app.use("/api/v1/category",categoryRouter)
 app.use("/api/v1/split",splitRouter)
+app.use("/api/v1/expense",expenseRouter)
 
 export {app}

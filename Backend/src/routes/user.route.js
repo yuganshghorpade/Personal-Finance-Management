@@ -6,6 +6,7 @@ import {
     logoutUser,
     checkUsernameUnique,
     fetchUserDetails,
+    updateUserDetails,
 } from "../controllers/user.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -18,6 +19,7 @@ router.route("/login").post(loginUser)
 router.route("/logout").post(verifyJWT,logoutUser)
 router.route("/check-username-unique").get(checkUsernameUnique)
 router.route("/fetch-user-details").get(verifyJWT,fetchUserDetails)
+router.route("/update-user-details").patch(verifyJWT,updateUserDetails)
 
 export default router
 

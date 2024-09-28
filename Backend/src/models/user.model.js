@@ -55,19 +55,19 @@ const userSchema = new mongoose.Schema({
         type:String
     },
     savings:{
-        type:Number,
+        type:String,
         default:0
     },
     wallet:{
-        type:Number,
+        type:String,
         default:0
     },
     monthlyExpense:{
-        type:Number,
+        type:String,
         default:0
     },
     salary:{
-        type:Number,
+        type:String,
         default:0
     },
     isVerified:{

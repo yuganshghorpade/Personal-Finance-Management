@@ -4,7 +4,7 @@ import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2, Pencil, PencilLine, Plus, SquarePen, Trash2 } from "lucide-react";
+import { Loader2, LogOutIcon, Pencil, PencilLine, Plus, SquarePen, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import {
@@ -160,7 +160,43 @@ function Events() {
     return (
         <>
             <div className="h-screen">
-                <h1 className="font-serif text-3xl m-5">Your Events</h1>
+                {/* <h1 className="font-serif text-3xl m-5">Your Events</h1> */}
+                <div className="navbar bg-base-400 h-32 w-full p-10">
+                    <div className="navbar-start">
+                        <a className="btn btn-ghost text-4xl">Events</a>
+                    </div>
+                    <div className="navbar-center ">
+                        <a href="/dashboard">
+                            <Button variant="link" className="text-lg">
+                                Dashboard
+                            </Button>
+                        </a>
+                        <a href="/profile">
+                            <Button variant="link" className="text-lg">
+                                My Profile
+                            </Button>
+                        </a>
+                        <a href="/friends">
+                            <Button variant="link" className="text-lg">
+                                Friends
+                            </Button>
+                        </a>
+                        <a href="/splits">
+                            <Button variant="link" className="text-lg">
+                                Splitwise
+                            </Button>
+                        </a>
+                    </div>
+                    <div className="navbar-end">
+                        <Button
+                            // onClick={logoutUser}
+                            className=" text-base p-6 "
+                        >
+                            <LogOutIcon className="" size={20} />
+                            <p className="ml-3 mr-4 mt-1">Logout</p>
+                        </Button>
+                    </div>
+                </div>
                 {/* //Todo editing events - popover */}
                 <div className="flex justify-center w-full">
                     <div className="grid m-2 grid-cols-4 gap-14">

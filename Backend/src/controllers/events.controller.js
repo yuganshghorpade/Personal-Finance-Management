@@ -209,96 +209,14 @@ const updateEvent = async (req,res) =>{
     }
 }
 
-// const addEventExpense = async (req, res) => {
-//     try {
-//         const eventId = req.query.eventId;
-
-//         // Get the text fields from req.body
-//         let { expenseTitle, amount, categoryId } = req.body;
-//         console.log("req.body",req.body);
-//         console.log("req.file",req.file);
-
-//         // Check if an image is uploaded
-//         let expenseImageUrl = ""; // Default empty string if no image is uploaded
-//         if (req.file) {
-//             const expenseImageLocalPath = req.file.path; // Get the local file path
-//             console.log("expenseimagelocal",expenseImageLocalPath);
-//             const expenseImage = await uploadOnCloudinary(expenseImageLocalPath); // Upload to Cloudinary
-
-//             if (!expenseImage.url) {
-//                 throw new ApiError(400, "Error while uploading image");
-//             }
-//             expenseImageUrl = expenseImage.url; // Get the image URL
-//         }
-
-//         // Validation checks
-//         if (!eventId) {
-//             throw new ApiError(402, "Link is broken");
-//         }
-
-//         if (!(expenseTitle && amount)) {
-//             throw new ApiError(403, "Title and Amount are required for expense creation");
-//         }
-
-//         // Handle categoryId - fallback to 'Uncategorized' if not provided
-//         if (!categoryId) {
-//             const category = await Category.findOne({ name: "Uncategorized" });
-//             if (category) {
-//                 categoryId = category._id;
-//             } else {
-//                 throw new ApiError(404, "Category not found");
-//             }
-//         }
-
-//         // Create the expense in the database
-//         const expense = await Expense.create({
-//             expenseTitle,
-//             amount,
-//             date: new Date(),
-//             category: categoryId,
-//             expenseImage: expenseImageUrl, // Save the image URL (or empty if no image)
-//         });
-
-//         if (!expense) {
-//             throw new ApiError(504, "Could not create expense");
-//         }
-
-//         // Associate the expense with the event
-//         const event = await Event.findById(eventId);
-//         if (!event) {
-//             throw new ApiError(403, "Event not found");
-//         }
-//         event.eventExpenses.push(expense);
-
-//         await event.save();
-
-//         return res.status(200).json(
-//             new ApiResponse(200, { event }, "Expense added successfully")
-//         );
-//     } catch (error) {
-//         if (error instanceof ApiError) {
-//             return res.status(error.statusCode).json({
-//                 success: false,
-//                 statusCode: error.statusCode,
-//                 message: error.message,
-//                 errors: error.errors,
-//                 data: error.data
-//             });
-//         }
-//         return res.status(500).json({
-//             success: false,
-//             statusCode: 500,
-//             message: `An unexpected error occurred while Adding Event Expense. Error: ${error}`,
-//             errors: [],
-//             data: null
-//         });
-//     }
-// };
-
 const addEventExpense = async (req, res) => {
     try {
         const eventId = req.query.eventId;
         let { expenseTitle, amount, categoryId } = req.body;
+        const user = req.user;
+        if (!user) {
+            throw new ApiError(402, "Unauthorised access");
+        }
 
         // Check if an image is uploaded
 
@@ -331,6 +249,7 @@ const addEventExpense = async (req, res) => {
         }
 
         const expense = await Expense.create({
+            user:user.id,
             expenseTitle,
             amount,
             date: new Date(),
@@ -463,21 +382,14 @@ const fetchEventExpense = async (req, res) => {
         let eventExpensesArrayWithIds = [];
         eventsArray.forEach((element) => {
             const expensesArrayWithIds = element.eventExpenses;
-            // console.log(element.eventExpenses);
             eventExpensesArrayWithIds.push(expensesArrayWithIds);
         });
-        // console.log("Event expenses with ids", eventExpensesArrayWithIds);
-
-        // eventExpensesArrayWithIds.forEach(element => {
-        //     element = await populateByIds(element, Expense)
-        // });
 
         const eventExpensesArrayWithoutIds = await Promise.all(
             eventExpensesArrayWithIds.map(async (element) => {
                 return await populateByIds(element, Expense);
             })
         );
-        console.log("Event expenses without ids", eventExpensesArrayWithoutIds);
         return res
             .status(200)
             .json(

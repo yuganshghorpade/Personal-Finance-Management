@@ -369,8 +369,7 @@ function SingleEvent() {
                 )}
 
                 <Button
-                    variant="destructive"
-                    className="absolute right-20 mt-10"
+                    className="absolute right-20 mt-10 border-1 border-red-500 "
                     onClick={() => {
                         setDisplayDeleteEventDialog(true);
                         console.log(
@@ -383,10 +382,10 @@ function SingleEvent() {
                     <Trash2
                         size={20}
                         strokeWidth={1}
-                        color="#ffffff"
+                        color="#FF0000"
                         className="z-1 mr-3  hover:cursor-pointer"
                     />
-                    <p className="mt-1 text-base">Delete</p>
+                    <p className="mt-1 text-base text-red-500">Delete</p>
                 </Button>
             </div>
             <AlertDialog
@@ -768,7 +767,7 @@ function SingleEvent() {
                                             />
                                         </a>
                                     </TableCell>
-                                    <TableCell className="text-right font-bold text-lg">
+                                    <TableCell className="text-right font-bold text-lg ">
                                         ₹{expense.amount}
                                     </TableCell>
                                     <div className="absolute left-[20px] top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex space-x-2">

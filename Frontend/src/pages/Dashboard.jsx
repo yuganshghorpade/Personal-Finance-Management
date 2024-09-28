@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 
 function Dashboard() {
     const [userDetails, setUserDetails] = useState({});
+    const [monthlyExpenses, setMonthlyExpenses] = useState([])
+    const [totalMonthlyExpenses, setTotalMonthlyExpenses] = useState("")
     const { toast } = useToast();
     const navigate = useNavigate();
 
@@ -23,8 +25,6 @@ function Dashboard() {
                     }
                 );
                 setUserDetails(response.data.data.loggedInUser);
-                console.log(response.data.data);
-                console.log(response.data.data.loggedInUser);
             } catch (error) {
                 console.error(
                     "Error fetching user details:",
@@ -43,41 +43,26 @@ function Dashboard() {
             }
         };
 
+        const fetchMonthlyExpenses = async()=>{
+            const response = await axios.get("http://localhost:8000/api/v1/expense/fetch-expenses",{
+                withCredentials:true
+            })
+            console.log(response);
+            setMonthlyExpenses(response.data.data.expenses)
+            const totalAmount = response.data.data.expenses.reduce((accumulator, expense) => {
+                return accumulator + expense.amount;
+            }, 0);
+            setTotalMonthlyExpenses(totalAmount)
+        }
+
         fetchUserDetails();
+        fetchMonthlyExpenses();
     }, []);
 
     return (
         <>
-            {/* <div className="flex justify-between px-10">
-                <p className="mt-10 text-4xl font-serif">Dashboard</p>
-                <Button onClick={logoutUser} className="mt-10 p-6">
-                    <LogOutIcon className="mr-2" size={20} />
-                    Logout
-                </Button>
-            </div> */}
             <div className="navbar bg-base-400 h-32 w-full p-10">
                 <div className="navbar-start">
-                    <div className="dropdown">
-                        <div
-                            tabIndex={0}
-                            role="button"
-                            className="btn btn-ghost lg:hidden"
-                        ></div>
-                        <ul
-                            tabIndex={0}
-                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow text-lg"
-                        >
-                            <li>
-                                <a className="text-lg">Friends</a>
-                            </li>
-                            <li>
-                                <a>Parent</a>
-                            </li>
-                            <li>
-                                <a>Item 3</a>
-                            </li>
-                        </ul>
-                    </div>
                     <a className="btn btn-ghost text-4xl">Dashboard</a>
                 </div>
                 <div className="navbar-center ">
@@ -107,45 +92,11 @@ function Dashboard() {
                     </a>
                 </div>
             </div>
-            {/* <div className="flex items-center justify-center w-full h-[calc(8/10*100vh)] mt-4 gap-6">
-                <div className="flex flex-col border border-white rounded-2xl h-full items-center justify-center w-full">
-                    Friends - { userDetails.friends ? (userDetails.friends.length): ("No Friends") }
-                </div>
-                <div className="flex flex-col items-center justify-center w-full">
-                    <div className="w-full rounded-2xl border border-white p-5 text-center">
-                        <h2>Savings</h2>
-                        <p>{userDetails.savings}</p>
-                    </div>
-                    <div className="flex justify-evenly w-full">
-                        <div className="border rounded-3xl border-white p-12 m-5">
-                            <div className="flex justify-evenly">
-                                <h2 className=" text-3xl mb-5 pr-4">Wallet</h2>
-                            <Wallet size={40} strokeWidth={0.8} />  
-                            </div>
-                            <p className="text-center text-3xl">
-                                {userDetails.wallet}
-                            </p>
-                        </div>
-                        <div className="border rounded-3xl border-white p-12 m-5">
-                            <div className="flex justify-evenly">
-                                <h2 className=" text-3xl mb-5 pr-2">Expense</h2>
-                            <SquareArrowOutUpRight size={40} strokeWidth={0.8} />
-                            </div>
-                            <p className="text-center text-3xl">
-                                {userDetails.monthlyExpense}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex flex-col items-center h-full justify-center w-full border border-white rounded-2xl ">
-                    Events - { userDetails.event ? (userDetails.event.length): ("No Events") }
-                </div>
-            </div> */}
             <div className="w-full flex justify-center items-center h-44">
                 <div className="stats bg-slate-750 text-white ">
                     <div className="stat">
                         <div className="stat-title">Savings</div>
-                        <div className="stat-value">₹{userDetails.savings}</div>
+                        <div className="stat-value font-mono">₹{userDetails.savings}</div>
                         <div className="stat-actions">
                             <button className="btn btn-sm bg-green-300 btn-success">
                                 Add funds
@@ -154,7 +105,7 @@ function Dashboard() {
                     </div>
                     <div className="stat">
                         <div className="stat-title">Current balance</div>
-                        <div className="stat-value">₹{userDetails.wallet}</div>
+                        <div className="stat-value font-mono">₹{userDetails.wallet}</div>
                         <div className="stat-actions">
                             <button className="btn btn-sm mr-1 hover:text-white bg-red-300 text-black">
                                 Withdrawal
@@ -170,8 +121,8 @@ function Dashboard() {
                         <div className="stat-title text-white">
                             Transactions this month
                         </div>
-                        <div className="stat-value">
-                            ₹{userDetails.monthlyExpense}
+                        <div className="stat-value font-mono">
+                            ₹{totalMonthlyExpenses}
                         </div>
                         <div className="stat-actions">
                             <button className="btn btn-sm bg-green-300 text-black btn-success">
